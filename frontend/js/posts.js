@@ -62,6 +62,7 @@ function viewPost(postId) {
         localStorage.setItem('current-post', JSON.stringify(post));
         window.location.href = `post-view.html?id=${postId}`;
     }
+    
 }
 
 /**
