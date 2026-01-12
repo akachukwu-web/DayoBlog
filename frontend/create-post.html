@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post - ModernBlog</title>
+    <meta name="description" content="Create a new blog post on ModernBlog">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        .create-post-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .post-form {
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-gray);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .post-form h1 {
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-gray);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--text-dark);
+            background-color: var(--bg-white);
+            transition: var(--transition);
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--text-dark);
+            box-shadow: 0 0 0 3px var(--focus-shadow);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 200px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .create-post-container {
+                padding: 1rem;
+            }
+
+            .post-form {
+                padding: 1.5rem;
+            }
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-submit {
+            background-color: var(--text-dark);
+            color: var(--bg-white);
+            border: 2px solid var(--text-dark);
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            flex: 1;
+        }
+
+        .btn-submit:hover {
+            background-color: transparent;
+            color: var(--text-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: var(--text-dark);
+            border: 2px solid var(--border-gray);
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--text-dark);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #15803d;
+            border-color: #16a34a;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER & NAVIGATION -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-pen-nib"></i> ModernBlog
+            </a>
+            <nav id="navbar">
+                <a href="index.html">Home</a>
+                <a href="index.html#posts">Blog</a>
+                <a href="index.html#about">About</a>
+                <a href="login.html" class="btn btn-primary btn-small"><i class="fa-solid fa-user-shield"></i> Login</a>
+            </nav>
+            <button id="menuToggle" class="btn btn-outline btn-small menu-toggle" aria-label="Toggle menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- CREATE POST SECTION -->
+    <main class="create-post-container">
+        <div class="post-form">
+            <h1><i class="fa-solid fa-pen"></i> Create a New Post</h1>
+
+            <div id="messageAlert" class="alert"></div>
+
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="postTitle">Post Title *</label>
+                    <input type="text" id="postTitle" name="title" placeholder="Enter your post title" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="postAuthor">Author Name *</label>
+                        <input type="text" id="postAuthor" name="author" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postCategory">Category *</label>
+                        <input type="text" id="postCategory" name="category" placeholder="e.g., Technology, Design">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="postContent">Content *</label>
+                    <textarea id="postContent" name="content" placeholder="Write your post content here..." required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-check"></i> Publish Post
+                    </button>
+                    <a href="index.html" class="btn-cancel">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div>
+                <h4>ModernBlog</h4>
+                <p style="font-size: 0.875rem;">A platform for sharing modern ideas and insights about technology and programming.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="index.html#posts">Blog</a>
+                <a href="index.html#about">About</a>
+            </div>
+            <div>
+                <h4>Resources</h4>
+                <a href="#">Documentation</a>
+                <a href="#">API Docs</a>
+                <a href="#">Support</a>
+            </div>
+            <div>
+                <h4>Follow Us</h4>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-github"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 ModernBlog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize theme
+        document.documentElement.setAttribute('data-theme', 'dark');
+
+        // Initialize mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
+        const logo = document.querySelector('.logo');
+
+        if (menuToggle && navbar) {
+            menuToggle.addEventListener('click', () => {
+                navbar.classList.toggle('active');
+            });
+
+            const navLinks = navbar.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navbar.classList.remove('active');
+                });
+            });
+
+            if (logo) {
+                logo.addEventListener('click', () => {
+                    navbar.classList.remove('active');
+                });
+            }
+
+            document.addEventListener('click', (e) => {
+                if (!menuToggle.contains(e.target) && !navbar.contains(e.target) && !logo.contains(e.target)) {
+                    navbar.classList.remove('active');
+                }
+            });
+        }
+
+        // Post form handling
+        const postForm = document.getElementById('postForm');
+        const messageAlert = document.getElementById('messageAlert');
+
+        postForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('postTitle').value.trim();
+            const author = document.getElementById('postAuthor').value.trim();
+            const category = document.getElementById('postCategory').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+
+            if (!title || !author || !category || !content) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Create post object
+            const post = {
+                id: Date.now(),
+                title: title,
+                author: author,
+                category: category,
+                content: content,
+                excerpt: content.substring(0, 150) + '...',
+                date: new Date().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }),
+                timestamp: Date.now()
+            };
+
+            // Get existing posts from localStorage
+            let posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
+
+            // Add new post
+            posts.unshift(post);
+
+            // Save to localStorage
+            localStorage.setItem('blog-posts', JSON.stringify(posts));
+
+            showAlert('Post published successfully!', 'success');
+
+            // Reset form
+            postForm.reset();
+
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        });
+
+        function showAlert(message, type) {
+            messageAlert.textContent = message;
+            messageAlert.className = `alert show alert-${type}`;
+
+            setTimeout(() => {
+                messageAlert.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+
+    <script type="module" src="js/theme.js"></script>
+</body>
+
+</html>

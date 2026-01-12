@@ -1,0 +1,222 @@
+/* Auth Pages Styling (Login & Signup) */
+
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg-light);
+}
+
+.login-box {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .login-box {
+    background: #fff;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header i {
+    font-size: 3rem;
+    color: black;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.login-header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: #000;
+}
+
+.login-header p {
+    color: #000;
+    font-size: 0.95rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .form-group label {
+    color: #000;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .form-group input {
+    background-color: #000;
+    border-color: #fff;
+    color: #e2e8f0;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--text-dark);
+    box-shadow: 0 0 0 3px var(--focus-shadow);
+}
+
+.form-group input[aria-invalid="true"] {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+
+.remember-forgot label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+    color: black;
+}
+
+.remember-forgot a {
+    color: #000;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.remember-forgot a:hover {
+    opacity: 0.8;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px var(--accent-shadow);
+}
+
+.btn-login:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+}
+.signup-link{
+    color: black;
+    margin-top: 9px;
+    text-align: center;
+}
+
+.signup-link a {
+    color: black;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+}
+
+.alert.hidden {
+    display: none;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #dc2626;
+}
+
+[data-theme="dark"] .alert-error {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: #fca5a5;
+    border-color: #7f1d1d;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #15803d;
+    border-color: #16a34a;
+}
+
+[data-theme="dark"] .alert-success {
+    background-color: rgba(22, 163, 74, 0.15);
+    color: #86efac;
+    border-color: #065f46;
+}
+
+footer {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.875rem;
+    margin-top: 2rem;
+    transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] footer {
+    background-color: black;
+    border-top: 1px solid #334155;
+}
+
+@media (max-width: 480px) {
+    .login-box {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-header i {
+        font-size: 2.5rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+}

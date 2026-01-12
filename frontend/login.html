@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ModernBlog</title>
+    <meta name="description" content="Login to ModernBlog to write and manage your posts.">
+
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <!-- HEADER & NAVIGATION -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-pen-nib"></i> ModernBlog
+            </a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="index.html#posts">Blog</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- LOGIN CONTAINER -->
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fa-solid fa-lock"></i>
+                <h1>Welcome Back</h1>
+                <p>Login to your ModernBlog account</p>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div id="messageAlert" class="alert hidden"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your@example.com" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password"><i class="fa-solid fa-key"></i> Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="••••••••" 
+                        required
+                        minlength="6"
+                    >
+                </div>
+
+                <div class="remember-forgot">
+                    <label>
+                        <input type="checkbox" id="rememberMe">
+                        Remember me
+                    </label>
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fa-solid fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <div class="signup-link">
+                Don't have an account? <a href="signup.html">Sign up here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ModernBlog. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/theme.js"></script>
+</body>
+
+</html>

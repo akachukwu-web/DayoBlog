@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ModernBlog</title>
+    <meta name="description" content="Create a ModernBlog account.">
+
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo"><i class="fa-solid fa-pen-nib"></i> ModernBlog</a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="index.html#posts">Blog</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fa-solid fa-user-plus"></i>
+                <h1>Create Account</h1>
+                <p>Sign up to start writing on ModernBlog</p>
+            </div>
+
+            <div id="messageAlert" class="alert hidden"></div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name"><i class="fa-solid fa-user"></i> Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password"><i class="fa-solid fa-key"></i> Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword"><i class="fa-solid fa-key"></i> Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required minlength="6">
+                </div>
+
+                <button type="submit" class="btn-login">Create account</button>
+            </form>
+
+            <div class="signup-link">Already have an account? <a href="login.html">Log in</a></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 ModernBlog. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="js/signup.js"></script>
+    <script type="module" src="js/theme.js"></script>
+</body>
+
+</html>
