@@ -4,13 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - ModernBlog</title>
-    <meta name="description" content="Create a ModernBlog account.">
+    <title>Sign Up - TechZon</title>
+    <meta name="description" content="Create a TechZon account.">
 
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/theme.css">
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
 
@@ -20,10 +17,10 @@
 <body>
     <header>
         <div class="container">
-            <a href="index.html" class="logo"><i class="fa-solid fa-pen-nib"></i> ModernBlog</a>
+            <a href="../index.html" class="logo"><i class="fa-solid fa-pen-nib"></i> TechZon</a>
             <nav>
-                <a href="index.html">Home</a>
-                <a href="index.html#posts">Blog</a>
+                <a href="../index.html">Home</a>
+                <a href="../index.html#posts">Blog</a>
             </nav>
         </div>
     </header>
@@ -33,7 +30,7 @@
             <div class="login-header">
                 <i class="fa-solid fa-user-plus"></i>
                 <h1>Create Account</h1>
-                <p>Sign up to start writing on ModernBlog</p>
+                <p>Sign up to start writing on TechZon</p>
             </div>
 
             <div id="messageAlert" class="alert hidden"></div>
@@ -51,12 +48,18 @@
 
                 <div class="form-group">
                     <label for="password"><i class="fa-solid fa-key"></i> Password</label>
-                    <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+                        <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="confirmPassword"><i class="fa-solid fa-key"></i> Confirm Password</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required minlength="6">
+                    <div class="password-container">
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required minlength="6">
+                        <i class="fa-solid fa-eye toggle-password" id="toggleConfirmPassword"></i>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-login">Create account</button>
@@ -67,11 +70,10 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 ModernBlog. All rights reserved.</p>
+        <p>&copy; 2026 TechZon. All rights reserved.</p>
     </footer>
 
     <script type="module" src="js/signup.js"></script>
-    <script type="module" src="js/theme.js"></script>
 </body>
 
 </html>

@@ -4,13 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ModernBlog</title>
-    <meta name="description" content="Login to ModernBlog to write and manage your posts.">
+    <title>Login - TechZon</title>
+    <meta name="description" content="Login to TechZon to write and manage your posts.">
 
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/theme.css">
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
 
@@ -21,12 +18,12 @@
     <!-- HEADER & NAVIGATION -->
     <header>
         <div class="container">
-            <a href="index.html" class="logo">
-                <i class="fa-solid fa-pen-nib"></i> ModernBlog
+            <a href="../index.html" class="logo">
+                <i class="fa-solid fa-pen-nib"></i> TechZon
             </a>
             <nav>
-                <a href="index.html">Home</a>
-                <a href="index.html#posts">Blog</a>
+                <a href="../index.html">Home</a>
+                <a href="../index.html#posts">Blog</a>
             </nav>
         </div>
     </header>
@@ -37,7 +34,7 @@
             <div class="login-header">
                 <i class="fa-solid fa-lock"></i>
                 <h1>Welcome Back</h1>
-                <p>Login to your ModernBlog account</p>
+                <p>Login to your TechZon account</p>
             </div>
 
             <!-- Error/Success Messages -->
@@ -58,14 +55,17 @@
 
                 <div class="form-group">
                     <label for="password"><i class="fa-solid fa-key"></i> Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="••••••••" 
-                        required
-                        minlength="6"
-                    >
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••" 
+                            required
+                            minlength="6"
+                        >
+                        <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
                 </div>
 
                 <div class="remember-forgot">
@@ -89,11 +89,10 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 ModernBlog. All rights reserved.</p>
+        <p>&copy; 2026 TechZon. All rights reserved.</p>
     </footer>
 
     <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/theme.js"></script>
 </body>
 
 </html>

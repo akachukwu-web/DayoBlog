@@ -1,80 +1,53 @@
-// API Base URL
-const API_BASE_URL = 'http://localhost:5000';
+// This is a mock API to simulate a backend using localStorage.
+// In a real application, this would be replaced with actual HTTP requests.
 
-// Make API calls
-export async function apiCall(endpoint, method = 'GET', data = null) {
-    const options = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    };
+const MOCK_DELAY = 500; // Simulate network latency
 
-    // Add auth token if available
-    const token = localStorage.getItem('authToken');
-    if (token) {
-        options.headers['Authorization'] = `Bearer ${token}`;
-    }
+function apiCall(endpoint, method, body) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            console.log(`Mock API Call: ${method} ${endpoint}`, body);
 
-    // Add request body for non-GET requests
-    if (data) {
-        options.body = JSON.stringify(data);
-    }
+            if (endpoint === '/api/auth/register' && method === 'POST') {
+                const users = JSON.parse(localStorage.getItem('blog-users')) || [];
+                const existingUser = users.find(user => user.email === body.email);
 
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                if (existingUser) {
+                    return reject({ message: 'An account with this email already exists.' });
+                }
 
-        // Handle authentication errors
-        if (response.status === 401) {
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
-            throw new Error('Unauthorized. Please login again.');
-        }
+                const newUser = {
+                    id: Date.now(),
+                    name: body.name,
+                    email: body.email,
+                    password: body.password // In a real app, this should be hashed!
+                };
+                users.push(newUser);
+                localStorage.setItem('blog-users', JSON.stringify(users));
 
-        const result = await response.json();
+                return resolve({ message: 'Account created successfully!' });
+            }
 
-        if (!response.ok) {
-            throw new Error(result.message || `HTTP Error: ${response.status}`);
-        }
+            if (endpoint === '/api/auth/login' && method === 'POST') {
+                const users = JSON.parse(localStorage.getItem('blog-users')) || [];
+                const user = users.find(u => u.email === body.email && u.password === body.password);
 
-        return result;
-    } catch (error) {
-        console.error(`API Error (${method} ${endpoint}):`, error);
-        throw error;
-    }
+                if (user) {
+                    // Create a mock JWT-like token and return user info
+                    const token = `mock-token-for-${user.id}-${Date.now()}`;
+                    return resolve({
+                        message: 'Login successful!',
+                        token: token,
+                        user: { id: user.id, name: user.name, email: user.email }
+                    });
+                } else {
+                    return reject({ message: 'Invalid email or password.' });
+                }
+            }
+
+            reject({ message: `Mock endpoint ${endpoint} not found.` });
+        }, MOCK_DELAY);
+    });
 }
 
-// Login
-export async function login(email, password) {
-    return apiCall('/api/auth/login', 'POST', { email, password });
-}
-
-// Get all posts
-export async function getPosts(page = 1, limit = 10) {
-    return apiCall(`/api/posts?page=${page}&limit=${limit}`, 'GET');
-}
-
-// Get single post
-export async function getPost(id) {
-    return apiCall(`/api/posts/${id}`, 'GET');
-}
-
-// Create post
-export async function createPost(title, content, category = 'General') {
-    return apiCall('/api/posts', 'POST', { title, content, category });
-}
-
-// Update post
-export async function updatePost(id, title, content, category) {
-    return apiCall(`/api/posts/${id}`, 'PUT', { title, content, category });
-}
-
-// Delete post
-export async function deletePost(id) {
-    return apiCall(`/api/posts/${id}`, 'DELETE');
-}
-
-// Get user posts
-export async function getUserPosts() {
-    return apiCall('/api/posts/user/my-posts', 'GET');
-}
+export { apiCall };

@@ -56,6 +56,10 @@ if (loginForm) {
 
             if (response.token) {
                 localStorage.setItem('authToken', response.token);
+                if (response.user) {
+                    // Store logged in user's info for other parts of the app
+                    localStorage.setItem('currentUser', JSON.stringify(response.user));
+                }
 
                 if (rememberMe) {
                     localStorage.setItem('rememberedEmail', email);
@@ -121,5 +125,16 @@ export function getAuthToken() {
 export function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('rememberedEmail');
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
+}
+
+// Toggle Password Visibility
+const togglePassword = document.getElementById('togglePassword');
+if (togglePassword && passwordEl) {
+    togglePassword.addEventListener('click', () => {
+        const type = passwordEl.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordEl.setAttribute('type', type);
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+    });
 }

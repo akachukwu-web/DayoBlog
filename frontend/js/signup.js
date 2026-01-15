@@ -97,3 +97,24 @@ function showMessage(message, type) {
         setTimeout(() => messageAlert.classList.add('hidden'), 3000);
     }
 }
+
+// Toggle Password Visibility
+const togglePassword = document.getElementById('togglePassword');
+if (togglePassword && passwordEl) {
+    togglePassword.addEventListener('click', () => {
+        const type = passwordEl.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordEl.setAttribute('type', type);
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+    });
+}
+
+const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+if (toggleConfirmPassword && confirmEl) {
+    toggleConfirmPassword.addEventListener('click', () => {
+        const type = confirmEl.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmEl.setAttribute('type', type);
+        toggleConfirmPassword.classList.toggle('fa-eye');
+        toggleConfirmPassword.classList.toggle('fa-eye-slash');
+    });
+}
