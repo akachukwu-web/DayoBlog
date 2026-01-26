@@ -218,6 +218,17 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 // --- POSTS API ---
 
+// GET posts for current user (Dashboard)
+app.get('/api/my-posts', authMiddleware, async (req, res) => {
+    try {
+        const userId = String(req.session.user.id);
+        const posts = await db.collection('posts').find({ userId: userId }).sort({ timestamp: -1 }).toArray();
+        res.json(posts.map(mapId));
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user posts' });
+    }
+});
+
 // GET all posts
 app.get('/api/posts', async (req, res) => {
     const { query } = req.query;

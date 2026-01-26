@@ -57,8 +57,10 @@ async function loadAdminPosts() {
 
     let posts = [];
     try {
-        const response = await fetch('/api/posts');
-        posts = await response.json();
+        const response = await fetch('/api/my-posts');
+        if (response.ok) {
+            posts = await response.json();
+        }
     } catch (e) { console.error(e); }
 
     if (posts.length === 0) {
