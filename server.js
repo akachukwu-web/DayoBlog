@@ -18,6 +18,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render/Heroku to correctly identify protocol (http/https)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json());
 app.use(express.static(__dirname)); // Serve static files (html, css, js)
@@ -165,11 +168,16 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
         // Construct reset URL
         // Assuming the server serves static files from root, the path includes 'frontend'
-        const resetUrl = `http://${req.headers.host}/frontend/reset-password.html?token=${token}`;
+        const protocol = req.protocol;
+        const host = req.headers.host;
+        const resetUrl = `${protocol}://${host}/frontend/reset-password.html?token=${token}`;
 
         const mailOptions = {
             to: user.email,
-            from: process.env.EMAIL_USER,
+            from: {
+                name: "TechZon Security",
+                address: process.env.EMAIL_USER
+            },
             subject: 'Password Reset Request',
             text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
                 `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
@@ -357,7 +365,10 @@ app.post('/api/contact', async (req, res) => {
 
         // 2. Send an email notification to the admin
         const mailOptions = {
-            from: `"${name}" <${process.env.EMAIL_USER}>`,
+            from: {
+                name: name,
+                address: process.env.EMAIL_USER
+            },
             to: process.env.ADMIN_EMAIL,
             subject: `New Contact Form Message: ${newMessage.subject}`,
             text: `You have a new message from:\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
@@ -405,7 +416,10 @@ app.post('/api/newsletter', async (req, res) => {
 
         // Optional: Send a welcome email (fire and forget)
         const mailOptions = {
-            from: `"TechZon" <${process.env.EMAIL_USER}>`,
+            from: {
+                name: "TechZon",
+                address: process.env.EMAIL_USER
+            },
             to: email,
             subject: 'Welcome to TechZon Newsletter!',
             text: 'Thank you for subscribing to our newsletter. Stay tuned for the latest tech updates!',

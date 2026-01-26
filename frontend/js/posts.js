@@ -72,9 +72,9 @@ async function loadPosts(page = 1) {
                     <span class="post-author"><i class="fa-solid fa-user"></i> ${escapeHtml(featuredPost.author)}</span>
                     <span class="post-date"><i class="fa-solid fa-calendar"></i> ${featuredPost.date}</span>
                 </div>
-                <button class="btn btn-primary btn-small" onclick="viewPost('${featuredPost.id}')">
+                <a href="frontend/post-view.html?id=${featuredPost.id}" class="btn btn-primary btn-small">
                     Read More <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                </a>
             </div>
         `;
     } else if (featuredContainer) {
@@ -105,9 +105,9 @@ async function loadPosts(page = 1) {
                 </div>
             </div>
             <div class="post-footer">
-                <button class="btn btn-primary btn-small" onclick="viewPost('${post.id}')">
+                <a href="frontend/post-view.html?id=${post.id}" class="btn btn-primary btn-small">
                     Read More <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                </a>
             </div>
         </article>
     `).join('');
@@ -200,25 +200,6 @@ async function loadCategories() {
 }
 
 /**
- * View full post
- */
-async function viewPost(postId) {
-    // We can just redirect, the view page will fetch the data
-    window.location.href = `frontend/post-view.html?id=${postId}`;
-    
-    /* Old logic removed for simplicity as view page fetches by ID
-    const posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
-    // Convert postId to number to ensure proper comparison
-    const numPostId = parseInt(postId);
-    
-    if (post) {
-        localStorage.setItem('current-post', JSON.stringify(post));
-        window.location.href = `frontend/post-view.html?id=${numPostId}`;
-    }
-    */
-}
-
-/**
  * Search posts
  */
 async function searchPosts(query) {
@@ -272,9 +253,9 @@ async function searchPosts(query) {
                 </div>
             </div>
             <div class="post-footer">
-                <button class="btn btn-primary btn-small" onclick="viewPost(${post.id})">
+                <a href="frontend/post-view.html?id=${post.id}" class="btn btn-primary btn-small">
                     Read More <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                </a>
             </div>
         </article>
     `).join('');
