@@ -54,7 +54,13 @@ if (loginForm) {
                 body: JSON.stringify({ email, password })
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                // If response is not JSON (e.g., 502 Bad Gateway HTML), throw a clear error
+                throw new Error(`Server Error: ${res.status} ${res.statusText}`);
+            }
 
             if (res.ok) {
                 showMessage('Login successful! Redirecting...', 'success');

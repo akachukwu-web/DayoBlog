@@ -68,7 +68,13 @@ if (signupForm) {
                 body: JSON.stringify({ name, email, password })
             });
 
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (e) {
+                // If response is not JSON (e.g., 502 Bad Gateway HTML), throw a clear error
+                throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+            }
 
             if (response.ok) {
                 showMessage(data.message || 'Account created! Redirecting to login...', 'success');
