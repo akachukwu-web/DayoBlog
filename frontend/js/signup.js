@@ -1,5 +1,3 @@
-import { apiCall } from './api.js';
-
 const signupForm = document.getElementById('signupForm');
 const messageAlert = document.getElementById('messageAlert');
 const nameEl = document.getElementById('name');
@@ -64,17 +62,22 @@ if (signupForm) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
 
-            const res = await apiCall('/api/auth/register', 'POST', {
-                name,
-                email,
-                password
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
             });
 
-            showMessage(res.message || 'Account created! Redirecting to login...', 'success');
+            const data = await response.json();
 
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1500);
+            if (response.ok) {
+                showMessage(data.message || 'Account created! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Registration failed');
+            }
         } catch (err) {
             console.error('Signup error:', err);
             showMessage(err.message || 'Unable to create account. Try again later.', 'error');

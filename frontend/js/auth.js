@@ -1,5 +1,3 @@
-import { apiCall } from './api.js';
-
 // Handle login form submission
 const loginForm = document.getElementById('loginForm');
 const messageAlert = document.getElementById('messageAlert');
@@ -51,16 +49,19 @@ if (loginForm) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
 
-            const response = await apiCall('/api/auth/login', 'POST', {
-                email,
-                password
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
             });
 
-            if (response.token) {
-                localStorage.setItem('authToken', response.token);
-                if (response.user) {
+            const data = await res.json();
+
+            if (res.ok && data.token) {
+                localStorage.setItem('authToken', data.token);
+                if (data.user) {
                     // Store logged in user's info for other parts of the app
-                    localStorage.setItem('currentUser', JSON.stringify(response.user));
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
                 }
 
                 if (rememberMe) {
@@ -75,7 +76,7 @@ if (loginForm) {
                     window.location.href = 'admin.html';
                 }, 1500);
             } else {
-                showMessage(response.message || 'Login failed', 'error');
+                showMessage(data.message || 'Login failed', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }

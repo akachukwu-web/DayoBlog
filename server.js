@@ -30,6 +30,62 @@ const mapId = (doc) => {
     return doc;
 };
 
+// --- AUTH API ---
+
+app.post('/api/auth/register', async (req, res) => {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    try {
+        const existingUser = await db.collection('users').findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'An account with this email already exists.' });
+        }
+
+        const newUser = {
+            name,
+            email,
+            password, // Note: In a real production app, you should hash this password!
+            joinedAt: new Date()
+        };
+
+        await db.collection('users').insertOne(newUser);
+        res.status(201).json({ message: 'Account created successfully!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error during registration' });
+    }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await db.collection('users').findOne({ email, password });
+        
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid email or password.' });
+        }
+
+        // Create a simple token
+        const token = `auth-${user._id}-${Date.now()}`;
+
+        res.json({
+            message: 'Login successful!',
+            token: token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error during login' });
+    }
+});
+
 // --- POSTS API ---
 
 // GET all posts
