@@ -2,7 +2,7 @@
  * Load and display blog posts from localStorage
  */
 const POSTS_PER_PAGE = 4;
-let currentCategory = null;
+let currentCategory = null, currentUser = null;
 
 async function loadPosts(page = 1) {
     const postsContainer = document.getElementById('posts');
@@ -284,11 +284,10 @@ async function searchPosts(query) {
  * Updates UI elements based on authentication status.
  */
 function updateAuthUI() {
-    const authToken = localStorage.getItem('authToken');
     const navLoginLink = document.querySelector('#navbar a[href="frontend/login.html"]');
     const ctaLink = document.querySelector('.cta-section a.cta-btn');
 
-    if (authToken) {
+    if (currentUser) {
         // User is logged in: Change "Login" to "Dashboard"
         if (navLoginLink) {
             navLoginLink.innerHTML = '<i class="fa-solid fa-tachometer-alt"></i> Dashboard';
@@ -303,9 +302,19 @@ function updateAuthUI() {
 }
 
 // Load posts on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+            currentUser = (await response.json()).user;
+        }
+    } catch (e) {
+        currentUser = null;
+    }
+
     loadPosts();
     loadCategories();
+    updateAuthUI();
 
     // Add search functionality
     const searchInput = document.getElementById('searchInput');
@@ -317,9 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize mobile menu
     initMobileMenu();
-
-    // Update UI based on auth status
-    updateAuthUI();
 
     // Newsletter Subscription Logic
     const newsletterForm = document.querySelector('.newsletter-form');

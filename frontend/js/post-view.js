@@ -1,5 +1,6 @@
 // Initialize mobile menu
 initMobileMenu();
+let currentUser = null;
 
 // Modal Elements
 const deleteCommentModal = document.getElementById('deleteCommentModal');
@@ -97,8 +98,6 @@ async function loadPost() {
 }
 
 async function loadComments(postId) {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
     let postComments = [];
     try {
         const response = await fetch(`/api/comments?postId=${postId}`);
@@ -163,10 +162,7 @@ function renderCommentForm(postId) {
     const container = document.getElementById('commentFormContainer');
     if (!container) return;
 
-    const authToken = localStorage.getItem('authToken');
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
-    if (!authToken || !currentUser) {
+    if (!currentUser) {
         container.innerHTML = `
             <div class="alert alert-info">
                 Please <a href="login.html" style="text-decoration: underline;">login</a> to leave a comment.
@@ -217,16 +213,24 @@ async function submitComment(postId, user) {
 }
 
 function updateNavOnAuth() {
-    const authToken = localStorage.getItem('authToken');
     const navLoginLink = document.querySelector('#navbar a[href*="login.html"]');
 
-    if (authToken && navLoginLink) {
+    if (currentUser && navLoginLink) {
         navLoginLink.innerHTML = '<i class="fa-solid fa-tachometer-alt"></i> Dashboard';
         navLoginLink.href = 'admin.html';
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+            currentUser = (await response.json()).user;
+        }
+    } catch (e) {
+        currentUser = null;
+    }
+
     loadPost();
     updateNavOnAuth();
 });

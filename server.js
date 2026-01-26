@@ -1,10 +1,14 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { connectDB } from './config/db.js';
+import { connectDB, client } from './config/db.js';
 import { ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import transporter from './config/mailer.js';
+import crypto from 'crypto';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -21,6 +25,30 @@ app.use(express.static(__dirname)); // Serve static files (html, css, js)
 // Connect to Database
 let db;
 
+// Session Middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        client: client,
+        dbName: process.env.DB_NAME,
+        collectionName: 'sessions',
+        ttl: 14 * 24 * 60 * 60 // 14 days
+    }),
+    cookie: {
+        maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days
+    }
+}));
+
+// Auth Middleware to protect routes
+const authMiddleware = (req, res, next) => {
+    if (req.session && req.session.user) {
+        return next();
+    }
+    return res.status(401).json({ message: 'Unauthorized: You must be logged in.' });
+};
+
 // Helper to map MongoDB's _id to id for client-side consistency
 const mapId = (doc) => {
     if (doc) {
@@ -35,26 +63,29 @@ const mapId = (doc) => {
 app.post('/api/auth/register', async (req, res) => {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-        return res.status(400).json({ message: 'All fields are required' });
+    if (!name || !email || !password || password.length < 6) {
+        return res.status(400).json({ message: 'All fields are required and password must be at least 6 characters.' });
     }
 
     try {
         const existingUser = await db.collection('users').findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'An account with this email already exists.' });
+            return res.status(409).json({ message: 'An account with this email already exists.' });
         }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = {
             name,
             email,
-            password, // Note: In a real production app, you should hash this password!
+            password: hashedPassword,
             joinedAt: new Date()
         };
 
         await db.collection('users').insertOne(newUser);
         res.status(201).json({ message: 'Account created successfully!' });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ message: 'Server error during registration' });
     }
 });
@@ -63,26 +94,125 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await db.collection('users').findOne({ email, password });
+        const user = await db.collection('users').findOne({ email });
         
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password.' });
+            return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
-        // Create a simple token
-        const token = `auth-${user._id}-${Date.now()}`;
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid email or password.' });
+        }
+
+        const userSessionData = {
+            id: user._id,
+            name: user.name,
+            email: user.email
+        };
+
+        // Set session
+        req.session.user = userSessionData;
 
         res.json({
             message: 'Login successful!',
-            token: token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email
-            }
+            user: userSessionData
         });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: 'Server error during login' });
+    }
+});
+
+// Get current user if authenticated
+app.get('/api/auth/me', (req, res) => {
+    if (req.session && req.session.user) {
+        res.json({ user: req.session.user });
+    } else {
+        res.status(401).json({ message: 'Not authenticated' });
+    }
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ message: 'Could not log out, please try again.' });
+        }
+        // The default session cookie name is 'connect.sid'
+        res.clearCookie('connect.sid');
+        res.json({ message: 'Logout successful' });
+    });
+});
+
+// Request Password Reset
+app.post('/api/auth/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await db.collection('users').findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate token
+        const token = crypto.randomBytes(20).toString('hex');
+        const expiry = Date.now() + 3600000; // 1 hour
+
+        await db.collection('users').updateOne(
+            { email },
+            { $set: { resetPasswordToken: token, resetPasswordExpires: expiry } }
+        );
+
+        // Construct reset URL
+        // Assuming the server serves static files from root, the path includes 'frontend'
+        const resetUrl = `http://${req.headers.host}/frontend/reset-password.html?token=${token}`;
+
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL_USER,
+            subject: 'Password Reset Request',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
+                `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
+                `${resetUrl}\n\n` +
+                `If you did not request this, please ignore this email and your password will remain unchanged.\n`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ message: 'Password reset email sent' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error sending email' });
+    }
+});
+
+// Reset Password
+app.post('/api/auth/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+    try {
+        const user = await db.collection('users').findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            {
+                $set: { password: hashedPassword },
+                $unset: { resetPasswordToken: "", resetPasswordExpires: "" }
+            }
+        );
+
+        res.json({ message: 'Password has been updated.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error resetting password' });
     }
 });
 
@@ -116,7 +246,7 @@ app.get('/api/posts/:id', async (req, res) => {
 });
 
 // POST create or update post
-app.post('/api/posts', async (req, res) => {
+app.post('/api/posts', authMiddleware, async (req, res) => {
     const postData = req.body;
 
     if (postData.id) { // This is an update
@@ -147,7 +277,7 @@ app.post('/api/posts', async (req, res) => {
 });
 
 // DELETE post
-app.delete('/api/posts/:id', async (req, res) => {
+app.delete('/api/posts/:id', authMiddleware, async (req, res) => {
     try {
         const result = await db.collection('posts').deleteOne({ _id: new ObjectId(req.params.id) });
         if (result.deletedCount === 0) {
@@ -173,7 +303,7 @@ app.get('/api/comments', async (req, res) => {
     res.json(comments.map(mapId));
 });
 
-app.post('/api/comments', async (req, res) => {
+app.post('/api/comments', authMiddleware, async (req, res) => {
     const newComment = req.body;
     newComment.timestamp = Date.now();
     const result = await db.collection('comments').insertOne(newComment);
@@ -181,7 +311,7 @@ app.post('/api/comments', async (req, res) => {
     res.status(201).json(mapId(insertedComment));
 });
 
-app.delete('/api/comments/:id', async (req, res) => {
+app.delete('/api/comments/:id', authMiddleware, async (req, res) => {
     try {
         const result = await db.collection('comments').deleteOne({ _id: new ObjectId(req.params.id) });
         if (result.deletedCount === 0) {

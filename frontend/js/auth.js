@@ -25,7 +25,6 @@ if (loginForm) {
 
         const email = emailEl.value.trim();
         const password = passwordEl.value;
-        const rememberMe = document.getElementById('rememberMe').checked;
 
         // Modern validation using Constraint API + custom checks
         if (!emailEl.checkValidity()) {
@@ -57,19 +56,7 @@ if (loginForm) {
 
             const data = await res.json();
 
-            if (res.ok && data.token) {
-                localStorage.setItem('authToken', data.token);
-                if (data.user) {
-                    // Store logged in user's info for other parts of the app
-                    localStorage.setItem('currentUser', JSON.stringify(data.user));
-                }
-
-                if (rememberMe) {
-                    localStorage.setItem('rememberedEmail', email);
-                } else {
-                    localStorage.removeItem('rememberedEmail');
-                }
-
+            if (res.ok) {
                 showMessage('Login successful! Redirecting...', 'success');
 
                 setTimeout(() => {
@@ -89,12 +76,6 @@ if (loginForm) {
         }
     });
 
-    // Restore remembered email if it exists
-    const rememberedEmail = localStorage.getItem('rememberedEmail');
-    if (rememberedEmail) {
-        emailEl.value = rememberedEmail;
-        document.getElementById('rememberMe').checked = true;
-    }
 }
 
 // Show message alert
@@ -116,24 +97,6 @@ function showMessage(message, type, duration = 4000) {
     setTimeout(() => {
         messageAlert.classList.remove('show');
     }, duration);
-}
-
-// Check if user is already logged in
-export function checkAuth() {
-    const token = localStorage.getItem('authToken');
-    return !!token;
-}
-
-// Get current user token
-export function getAuthToken() {
-    return localStorage.getItem('authToken');
-}
-
-// Logout
-export function logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('rememberedEmail');
-    window.location.href = '../index.html';
 }
 
 // Toggle Password Visibility

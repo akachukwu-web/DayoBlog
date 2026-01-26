@@ -1,18 +1,17 @@
 // Initialize mobile menu
 initMobileMenu();
+let currentUser = null;
 
 function updateNavOnAuth() {
-    const authToken = localStorage.getItem('authToken');
     const navLoginLink = document.querySelector('#navbar a[href*="login.html"]');
 
-    if (authToken && navLoginLink) {
+    if (currentUser && navLoginLink) {
         navLoginLink.innerHTML = '<i class="fa-solid fa-tachometer-alt"></i> Dashboard';
         navLoginLink.href = 'admin.html';
     }
 }
 
 function prefillUserInfo() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (currentUser) {
         const nameInput = document.getElementById('name');
         const emailInput = document.getElementById('email');
@@ -22,8 +21,18 @@ function prefillUserInfo() {
 }
 
 // Run on page load
-updateNavOnAuth();
-prefillUserInfo();
+(async () => {
+    try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+            currentUser = (await response.json()).user;
+        }
+    } catch (e) {
+        currentUser = null;
+    }
+    updateNavOnAuth();
+    prefillUserInfo();
+})();
 
 const contactForm = document.getElementById('contactForm');
 

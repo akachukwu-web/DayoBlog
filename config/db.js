@@ -28,4 +28,4 @@ async function connectDB() {
     }
 }
 
-export { connectDB };
+export { connectDB, client };

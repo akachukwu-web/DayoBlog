@@ -1,7 +1,14 @@
 // Auth Check
-if (!localStorage.getItem('authToken')) {
-    window.location.href = 'login.html';
-}
+(async () => {
+    try {
+        const response = await fetch('/api/auth/me');
+        if (!response.ok) {
+            window.location.href = 'login.html';
+        }
+    } catch (e) {
+        window.location.href = 'login.html';
+    }
+})();
 
 // Mobile Menu
 initMobileMenu();
@@ -9,14 +16,12 @@ initMobileMenu();
 // Logout
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('rememberedEmail');
-        showAlert('Logging out...', 'success');
+    logoutBtn.addEventListener('click', async () => {
+        showAlert('Logging out...', 'info');
+        await fetch('/api/auth/logout', { method: 'POST' });
         setTimeout(() => {
             window.location.href = '../index.html';
-        }, 1500);
+        }, 1000);
     });
 }
 

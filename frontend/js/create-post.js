@@ -5,7 +5,7 @@ initMobileMenu();
 const postForm = document.getElementById('postForm');
 const formTitle = document.getElementById('formTitle');
 const submitBtn = document.getElementById('submitBtn');
-let editPostId = null;
+let editPostId = null, currentUser = null;
 
 // Modal Elements
 const deleteModal = document.getElementById('deleteModal');
@@ -19,10 +19,25 @@ if (cancelDeleteBtn && deleteModal) {
     });
 }
 
-// Check authentication
-if (!localStorage.getItem('authToken')) {
-    window.location.href = 'login.html';
-}
+// Auth Check and User Fetch
+(async () => {
+    try {
+        const response = await fetch('/api/auth/me');
+        if (!response.ok) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const data = await response.json();
+        currentUser = data.user;
+        
+        // Initialize page components that depend on user data
+        loadEditPost();
+        populateAuthorField();
+        updateNavOnAuth();
+    } catch (e) {
+        window.location.href = 'login.html';
+    }
+})();
 
 function showAlert(message, type, duration = 4000) {
     let messageAlert = document.getElementById('messageAlert');
@@ -57,7 +72,6 @@ function showAlert(message, type, duration = 4000) {
 }
 
 function populateAuthorField() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const authorInput = document.getElementById('postAuthor');
     const urlParams = new URLSearchParams(window.location.search);
     const isEditing = urlParams.has('id');
@@ -160,8 +174,6 @@ postForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
     const postData = {
         title: escapeHtml(title),
         author: escapeHtml(author),
@@ -203,16 +215,10 @@ postForm.addEventListener('submit', async (e) => {
 });
 
 function updateNavOnAuth() {
-    const authToken = localStorage.getItem('authToken');
     const navLoginLink = document.querySelector('#navbar a[href*="login.html"]');
 
-    if (authToken && navLoginLink) {
+    if (currentUser && navLoginLink) {
         navLoginLink.innerHTML = '<i class="fa-solid fa-tachometer-alt"></i> Dashboard';
         navLoginLink.href = 'admin.html';
     }
 }
-
-// Load edit post on page load
-loadEditPost();
-populateAuthorField();
-updateNavOnAuth();
