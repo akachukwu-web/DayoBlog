@@ -289,6 +289,7 @@ app.post('/api/posts', authMiddleware, async (req, res) => {
         if (!postData.date) {
             postData.date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
+        postData.userId = String(req.session.user.id); // Set userId from session for new posts
         const result = await db.collection('posts').insertOne(postData);
         const newPost = await db.collection('posts').findOne({ _id: result.insertedId });
         res.status(201).json({ success: true, post: mapId(newPost) });
