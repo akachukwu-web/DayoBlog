@@ -1,0 +1,21 @@
+{
+  "name": "blog-web",
+  "version": "1.0.0",
+  "description": "blog website",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Akachukwu",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "mongodb": "^6.21.0",
+    "nodemailer": "^7.0.12"
+  }
+}

@@ -16,18 +16,47 @@ function escapeHtml(text) {
 }
 
 // Show alert messages
-function showAlert(message, type, elementId = 'messageAlert') {
-    const messageAlert = document.getElementById(elementId);
-    if (!messageAlert) return;
+function showAlert(message, type, duration = 5000) {
+    // Create container for toasts if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
 
-    messageAlert.textContent = message;
-    messageAlert.className = `alert show alert-${type}`;
-    messageAlert.classList.remove('hidden');
+    const toast = document.createElement('div');
+    // Use 'danger' for 'error' type for consistency with CSS
+    const alertType = type === 'error' ? 'danger' : type;
+    toast.className = `toast toast-${alertType}`;
+
+    const icons = {
+        success: 'fa-solid fa-check-circle',
+        danger: 'fa-solid fa-exclamation-triangle',
+        info: 'fa-solid fa-info-circle'
+    };
+    const iconClass = icons[alertType] || icons.info;
+
+    toast.innerHTML = `<i class="${iconClass}"></i> <span>${escapeHtml(message)}</span>`;
+
+    toastContainer.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
 
     setTimeout(() => {
-        messageAlert.classList.remove('show');
-        messageAlert.classList.add('hidden');
-    }, 3000);
+        toast.classList.remove('show');
+        // Remove the element after the transition ends
+        toast.addEventListener('transitionend', () => {
+            toast.remove();
+            // If container is empty, remove it to keep the DOM clean
+            if (toastContainer.children.length === 0) {
+                toastContainer.remove();
+            }
+        });
+    }, duration);
 }
 
 // Initialize Mobile Menu

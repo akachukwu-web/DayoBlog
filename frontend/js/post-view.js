@@ -23,14 +23,15 @@ if (confirmCommentDeleteBtn) {
 }
 
 // Load and display post
-function loadPost() {
+async function loadPost() {
     const urlParams = new URLSearchParams(window.location.search);
-    const postId = parseInt(urlParams.get('id'));
+    const postId = urlParams.get('id');
 
-    const posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
-    
-    // Find post - ensure ID comparison works by converting both to same type
-    const post = posts.find(p => parseInt(p.id) === postId);
+    let post = null;
+    try {
+        const response = await fetch(`/api/posts/${postId}`);
+        if (response.ok) post = await response.json();
+    } catch (e) { console.error(e); }
 
     const postContentDiv = document.getElementById('postContent');
 
@@ -95,10 +96,14 @@ function loadPost() {
     renderCommentForm(postId);
 }
 
-function loadComments(postId) {
-    const comments = JSON.parse(localStorage.getItem('blog-comments')) || [];
-    const postComments = comments.filter(c => c.postId === postId);
+async function loadComments(postId) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    let postComments = [];
+    try {
+        const response = await fetch(`/api/comments?postId=${postId}`);
+        postComments = await response.json();
+    } catch (e) { console.error(e); }
     
     // Update count
     const countEl = document.getElementById('commentCount');
@@ -122,7 +127,7 @@ function loadComments(postId) {
                 <div class="comment-meta">
                     <span class="comment-date">${comment.date}</span>
                     ${currentUser && currentUser.id === comment.userId 
-                        ? `<button class="btn-delete-comment" onclick="deleteComment(${comment.id}, ${postId})" title="Delete comment"><i class="fa-solid fa-trash"></i></button>` 
+                        ? `<button class="btn-delete-comment" onclick="deleteComment('${comment.id}', '${postId}')" title="Delete comment"><i class="fa-solid fa-trash"></i></button>` 
                         : ''}
                 </div>
             </div>
@@ -141,10 +146,10 @@ function deleteComment(commentId, postId) {
     }
 }
 
-function performDeleteComment(commentId, postId) {
-    let comments = JSON.parse(localStorage.getItem('blog-comments')) || [];
-    comments = comments.filter(c => c.id !== commentId);
-    localStorage.setItem('blog-comments', JSON.stringify(comments));
+async function performDeleteComment(commentId, postId) {
+    await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE'
+    });
 
     if (deleteCommentModal) {
         deleteCommentModal.classList.remove('show');
@@ -186,25 +191,25 @@ function renderCommentForm(postId) {
     });
 }
 
-function submitComment(postId, user) {
+async function submitComment(postId, user) {
     const contentEl = document.getElementById('commentContent');
     const content = contentEl.value.trim();
 
     if (!content) return;
 
     const newComment = {
-        id: Date.now(),
         postId: postId,
         author: user.name,
         userId: user.id,
         content: content,
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-        timestamp: Date.now()
     };
 
-    const comments = JSON.parse(localStorage.getItem('blog-comments')) || [];
-    comments.push(newComment);
-    localStorage.setItem('blog-comments', JSON.stringify(comments));
+    await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newComment)
+    });
 
     contentEl.value = '';
     showAlert('Comment posted successfully!', 'success');

@@ -506,31 +506,105 @@ footer a:hover {
   transition: border-color 0.3s ease, color 0.3s ease;
 }
 
+/* ===== TOAST NOTIFICATIONS (replaces .alert for global use) ===== */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toast {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-gray);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 250px;
+  max-width: 350px;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast i {
+  font-size: 1.25rem;
+}
+
+.toast.toast-success { background-color: #111F1A; color: #6EE7B7; border-color: #10B981; }
+.toast.toast-success i { color: #10B981; }
+
+.toast.toast-danger { background-color: #2A1212; color: #FCA5A5; border-color: #EF4444; }
+.toast.toast-danger i { color: #EF4444; }
+
+.toast.toast-info { background-color: #1E293B; color: #93C5FD; border-color: #3B82F6; }
+.toast.toast-info i { color: #3B82F6; }
+
 /* ===== ALERTS ===== */
 .alert {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+  display: none; /* Hidden by default */
+  align-items: center;
+  gap: 1rem;
+  font-weight: 500;
+}
+
+.alert.show {
+  display: flex; /* Show it */
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert i {
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .alert-success {
-  background-color: #dcfce7;
-  color: #15803d;
-  border-color: var(--success);
+  background-color: #111F1A;
+  color: #6EE7B7;
+  border-color: #10B981;
 }
+.alert-success i { color: #10B981; }
 
 .alert-danger {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border-color: var(--danger);
+  background-color: #2A1212;
+  color: #FCA5A5;
+  border-color: #EF4444;
 }
+.alert-danger i { color: #EF4444; }
 
 .alert-info {
-  background-color: #f3f4f6;
-  color: var(--text-secondary);
-  border-color: var(--text-primary);
+  background-color: #1E293B;
+  color: #93C5FD;
+  border-color: #3B82F6;
 }
+.alert-info i { color: #3B82F6; }
 
 /* ===== UTILITIES ===== */
 .text-center {

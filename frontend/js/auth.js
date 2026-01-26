@@ -7,8 +7,9 @@ const emailEl = document.getElementById('email');
 const passwordEl = document.getElementById('password');
 
 function clearMessage() {
-    if (!messageAlert) return;
-    messageAlert.classList.add('hidden');
+    if (messageAlert) {
+        messageAlert.classList.remove('show');
+    }
 }
 
 if (loginForm) {
@@ -43,9 +44,10 @@ if (loginForm) {
             return;
         }
 
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
         try {
-            const submitBtn = loginForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
 
@@ -79,8 +81,8 @@ if (loginForm) {
             }
         } catch (error) {
             console.error('Login error:', error);
-            showMessage(error.message || 'An error occurred during login. Please try again.', 'error');
-            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const message = (error.message === 'Invalid email or password.') ? 'Invalid credentials' : (error.message || 'An error occurred. Please try again.');
+            showMessage(message, 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
@@ -95,19 +97,24 @@ if (loginForm) {
 }
 
 // Show message alert
-function showMessage(message, type) {
+function showMessage(message, type, duration = 4000) {
     if (!messageAlert) return;
 
-    messageAlert.textContent = message;
-    messageAlert.setAttribute('role', 'alert');
-    messageAlert.className = `alert alert-${type}`;
-    messageAlert.classList.remove('hidden');
+    const icons = {
+        success: 'fa-solid fa-check-circle',
+        error: 'fa-solid fa-exclamation-circle',
+        danger: 'fa-solid fa-exclamation-triangle',
+        info: 'fa-solid fa-info-circle'
+    };
+    const iconClass = icons[type] || icons.info;
 
-    if (type === 'success') {
-        setTimeout(() => {
-            messageAlert.classList.add('hidden');
-        }, 3000);
-    }
+    messageAlert.innerHTML = `<i class="${iconClass}"></i> <span>${message}</span>`;
+    messageAlert.className = 'alert'; // Reset classes
+    messageAlert.classList.add(`alert-${type === 'error' ? 'danger' : type}`, 'show');
+
+    setTimeout(() => {
+        messageAlert.classList.remove('show');
+    }, duration);
 }
 
 // Check if user is already logged in

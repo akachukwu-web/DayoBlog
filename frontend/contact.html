@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Post - TechZon</title>
-    <meta name="description" content="Read the full blog post on TechZon">
-
-
+    <title>Contact Us - TechZon</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 </head>
-
 <body>
-    <!-- HEADER & NAVIGATION -->
     <header>
         <div class="container">
             <a href="../index.html" class="logo">
@@ -32,25 +25,39 @@
         </div>
     </header>
 
-    <!-- POST VIEW SECTION -->
-    <main class="post-view-container">
-        <div id="postContent">
-            <div style="text-align: center; padding: 3rem 1rem;">
-                <p style="color: var(--text-gray);">Loading post...</p>
+    <main class="container" style="max-width: 800px; margin-top: 3rem; margin-bottom: 3rem;">
+        <div class="card">
+            <div class="card-header">
+                <h1><i class="fa-solid fa-envelope"></i> Contact Us</h1>
+                <p>Have questions, suggestions, or just want to say hello? Send us a message!</p>
             </div>
-        </div>
-
-        <div class="post-view-actions">
-            <a href="../index.html" class="btn-back">
-                <i class="fa-solid fa-arrow-left"></i> Back to Blog
-            </a>
-            <a href="create-post.html" class="btn-back">
-                <i class="fa-solid fa-pen"></i> Create Post
-            </a>
+            <div class="card-body">
+                <div id="messageAlert" class="alert"></div>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="Your Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required placeholder="Your Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" placeholder="What is this regarding?">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" required placeholder="Write your message here..." rows="6"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
         </div>
     </main>
 
-    <!-- FOOTER -->
     <footer>
         <div class="container">
             <div>
@@ -72,7 +79,7 @@
             </div>
             <div>
                 <h4>Follow Us</h4>
-                <div class="social-links">
+                <div class="footer-social">
                     <a href="#"><i class="fa-brands fa-twitter"></i></a>
                     <a href="#"><i class="fa-brands fa-github"></i></a>
                     <a href="#"><i class="fa-brands fa-linkedin"></i></a>
@@ -83,25 +90,7 @@
             <p>&copy; 2026 TechZon. All rights reserved.</p>
         </div>
     </footer>
-
-    <!-- Delete Comment Confirmation Modal -->
-    <div id="deleteCommentModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Delete Comment</h3>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this comment? This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline btn-small" id="cancelCommentDelete">Cancel</button>
-                <button class="btn btn-danger btn-small" id="confirmCommentDelete">Delete</button>
-            </div>
-        </div>
-    </div>
-
     <script src="js/utils.js"></script>
-    <script src="js/post-view.js"></script>
+    <script src="js/contact.js"></script>
 </body>
-
 </html>

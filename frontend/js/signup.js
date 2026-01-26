@@ -9,7 +9,7 @@ const confirmEl = document.getElementById('confirmPassword');
 
 function clearMessage() {
     if (!messageAlert) return;
-    messageAlert.classList.add('hidden');
+    messageAlert.classList.remove('show');
 }
 
 if (signupForm) {
@@ -85,17 +85,24 @@ if (signupForm) {
     });
 }
 
-function showMessage(message, type) {
+function showMessage(message, type, duration = 4000) {
     if (!messageAlert) return;
 
-    messageAlert.textContent = message;
-    messageAlert.setAttribute('role', 'alert');
-    messageAlert.className = `alert alert-${type}`;
-    messageAlert.classList.remove('hidden');
+    const icons = {
+        success: 'fa-solid fa-check-circle',
+        error: 'fa-solid fa-exclamation-circle',
+        danger: 'fa-solid fa-exclamation-triangle',
+        info: 'fa-solid fa-info-circle'
+    };
+    const iconClass = icons[type] || icons.info;
 
-    if (type === 'success') {
-        setTimeout(() => messageAlert.classList.add('hidden'), 3000);
-    }
+    messageAlert.innerHTML = `<i class="${iconClass}"></i> <span>${message}</span>`;
+    messageAlert.className = 'alert'; // Reset classes
+    messageAlert.classList.add(`alert-${type === 'error' ? 'danger' : type}`, 'show');
+
+    setTimeout(() => {
+        messageAlert.classList.remove('show');
+    }, duration);
 }
 
 // Toggle Password Visibility

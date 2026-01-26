@@ -46,11 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAdminPosts();
 });
 
-function loadAdminPosts() {
+async function loadAdminPosts() {
     const postsListDiv = document.getElementById('postsList');
     if (!postsListDiv) return;
 
-    const posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
+    let posts = [];
+    try {
+        const response = await fetch('/api/posts');
+        posts = await response.json();
+    } catch (e) { console.error(e); }
 
     if (posts.length === 0) {
         postsListDiv.innerHTML = `<p class="text-center text-gray">You haven't created any posts yet.</p>`;
@@ -78,7 +82,7 @@ function loadAdminPosts() {
                                 <a href="create-post.html?id=${post.id}" class="btn btn-edit">
                                     <i class="fa-solid fa-pen"></i> Edit
                                 </a>
-                                <button class="btn btn-delete" onclick="deletePost(${post.id})">
+                                <button class="btn btn-delete" onclick="deletePost('${post.id}')">
                                     <i class="fa-solid fa-trash"></i> Delete
                                 </button>
                             </div>
@@ -97,10 +101,10 @@ function deletePost(postId) {
     }
 }
 
-function performDelete(postId) {
-    let posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
-    const updatedPosts = posts.filter(p => p.id !== postId);
-    localStorage.setItem('blog-posts', JSON.stringify(updatedPosts));
+async function performDelete(postId) {
+    await fetch(`/api/posts/${postId}`, {
+        method: 'DELETE'
+    });
 
     if (deleteModal) {
         deleteModal.classList.remove('show');

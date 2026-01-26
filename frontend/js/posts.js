@@ -4,15 +4,21 @@
 const POSTS_PER_PAGE = 4;
 let currentCategory = null;
 
-function loadPosts(page = 1) {
+async function loadPosts(page = 1) {
     const postsContainer = document.getElementById('posts');
     const featuredContainer = document.getElementById('featuredPost');
     const paginationContainer = document.getElementById('pagination');
 
     if (!postsContainer) return;
 
-    // Get posts from localStorage
-    let posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
+    // Get posts from API
+    let posts = [];
+    try {
+        const response = await fetch('/api/posts');
+        posts = await response.json();
+    } catch (error) {
+        console.error('Error loading posts:', error);
+    }
 
     // Filter by category if selected
     if (currentCategory) {
@@ -66,7 +72,7 @@ function loadPosts(page = 1) {
                     <span class="post-author"><i class="fa-solid fa-user"></i> ${escapeHtml(featuredPost.author)}</span>
                     <span class="post-date"><i class="fa-solid fa-calendar"></i> ${featuredPost.date}</span>
                 </div>
-                <button class="btn btn-primary btn-small" onclick="viewPost(${featuredPost.id})">
+                <button class="btn btn-primary btn-small" onclick="viewPost('${featuredPost.id}')">
                     Read More <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -99,7 +105,7 @@ function loadPosts(page = 1) {
                 </div>
             </div>
             <div class="post-footer">
-                <button class="btn btn-primary btn-small" onclick="viewPost(${post.id})">
+                <button class="btn btn-primary btn-small" onclick="viewPost('${post.id}')">
                     Read More <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -169,8 +175,13 @@ function filterPosts(category) {
 /**
  * Load and render categories sidebar
  */
-function loadCategories() {
-    const posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
+async function loadCategories() {
+    let posts = [];
+    try {
+        const response = await fetch('/api/posts');
+        posts = await response.json();
+    } catch (e) { console.error(e); }
+
     const categories = {};
     
     posts.forEach(post => {
@@ -191,28 +202,35 @@ function loadCategories() {
 /**
  * View full post
  */
-function viewPost(postId) {
+async function viewPost(postId) {
+    // We can just redirect, the view page will fetch the data
+    window.location.href = `frontend/post-view.html?id=${postId}`;
+    
+    /* Old logic removed for simplicity as view page fetches by ID
     const posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
     // Convert postId to number to ensure proper comparison
     const numPostId = parseInt(postId);
-    const post = posts.find(p => parseInt(p.id) === numPostId);
     
     if (post) {
         localStorage.setItem('current-post', JSON.stringify(post));
         window.location.href = `frontend/post-view.html?id=${numPostId}`;
     }
-    
+    */
 }
 
 /**
  * Search posts
  */
-function searchPosts(query) {
+async function searchPosts(query) {
     const postsContainer = document.getElementById('posts');
     const paginationContainer = document.getElementById('pagination');
     if (!postsContainer) return;
 
-    let posts = JSON.parse(localStorage.getItem('blog-posts')) || [];
+    let posts = [];
+    try {
+        const response = await fetch('/api/posts');
+        posts = await response.json();
+    } catch (e) { console.error(e); }
     
     if (!query.trim()) {
         loadPosts();
@@ -302,4 +320,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update UI based on auth status
     updateAuthUI();
+
+    // Newsletter Subscription Logic
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailInput = newsletterForm.querySelector('input[type="email"]');
+            const email = emailInput.value.trim();
+
+            if (!email) return;
+
+            const btn = newsletterForm.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showAlert(data.message, 'success');
+                    newsletterForm.reset();
+                } else if (res.status === 409) {
+                    showAlert(data.message, 'info');
+                } else {
+                    showAlert(data.message || 'An unknown error occurred', 'danger');
+                }
+            } catch (err) {
+                showAlert('Something went wrong. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+    }
 });
