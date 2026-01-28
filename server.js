@@ -23,6 +23,12 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(express.json());
+
+// Serve Favicon
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'favicon.svg'));
+});
+
 app.use(express.static(__dirname)); // Serve static files (html, css, js)
 
 // Connect to Database
@@ -230,7 +236,14 @@ app.post('/api/auth/reset-password', async (req, res) => {
 app.get('/api/my-posts', authMiddleware, async (req, res) => {
     try {
         const userId = String(req.session.user.id);
-        const posts = await db.collection('posts').find({ userId: userId }).sort({ timestamp: -1 }).toArray();
+        const userEmail = req.session.user.email;
+        let query = { userId: userId };
+
+        if (userEmail === 'akachukwumba04@gmail.com') {
+            query = {}; // Admin sees all posts
+        }
+
+        const posts = await db.collection('posts').find(query).sort({ timestamp: -1 }).toArray();
         res.json(posts.map(mapId));
     } catch (error) {
         res.status(500).json({ message: 'Error fetching user posts' });
@@ -299,7 +312,14 @@ app.post('/api/posts', authMiddleware, async (req, res) => {
 // DELETE post
 app.delete('/api/posts/:id', authMiddleware, async (req, res) => {
     try {
-        const result = await db.collection('posts').deleteOne({ _id: new ObjectId(req.params.id) });
+        const query = { _id: new ObjectId(req.params.id) };
+
+        // If not admin, restrict deletion to own posts
+        if (req.session.user.email !== 'akachukwumba04@gmail.com') {
+            query.userId = String(req.session.user.id);
+        }
+
+        const result = await db.collection('posts').deleteOne(query);
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Post not found' });
         }
