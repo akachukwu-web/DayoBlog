@@ -79,20 +79,49 @@ app.post('/api/auth/register', async (req, res) => {
     try {
         const existingUser = await db.collection('users').findOne({ email });
         if (existingUser) {
+            // If user exists but is not verified, we can allow another registration attempt
+            // which will re-send the verification email.
+            if (!existingUser.isVerified) {
+                // For simplicity, we'll just inform them. A more advanced flow could resend the email.
+                return res.status(409).json({ message: 'This email is registered but not verified. Please check your inbox.' });
+            }
             return res.status(409).json({ message: 'An account with this email already exists.' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const verificationToken = crypto.randomBytes(20).toString('hex');
+        const verificationTokenExpires = Date.now() + 3600000; // Token expires in 1 hour
 
         const newUser = {
             name,
             email,
             password: hashedPassword,
-            joinedAt: new Date()
+            joinedAt: new Date(),
+            isVerified: false,
+            verificationToken,
+            verificationTokenExpires
         };
 
         await db.collection('users').insertOne(newUser);
-        res.status(201).json({ message: 'Account created successfully!' });
+
+        // Send verification email
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const verificationUrl = `${protocol}://${host}/api/auth/verify-email?token=${verificationToken}`;
+
+        const mailOptions = {
+            to: newUser.email,
+            from: { name: "TechZon", address: process.env.EMAIL_USER },
+            subject: 'Verify Your TechZon Account',
+            text: `Hello ${name},\n\n` +
+                  `Thank you for registering. Please click the link below to verify your email address:\n\n` +
+                  `${verificationUrl}\n\n` +
+                  `This link will expire in one hour.\n`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(201).json({ message: 'Account created! Please check your email to verify your account before logging in.' });
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ message: 'Server error during registration' });
@@ -107,6 +136,11 @@ app.post('/api/auth/login', async (req, res) => {
         
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password.' });
+        }
+
+        // Check if the user's email is verified
+        if (!user.isVerified) {
+            return res.status(403).json({ message: 'Please verify your email address before logging in. Check your inbox for the verification link.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -152,6 +186,34 @@ app.post('/api/auth/logout', (req, res) => {
         res.clearCookie('connect.sid');
         res.json({ message: 'Logout successful' });
     });
+});
+
+// Verify Email
+app.get('/api/auth/verify-email', async (req, res) => {
+    const { token } = req.query;
+    try {
+        const user = await db.collection('users').findOne({
+            verificationToken: token,
+            verificationTokenExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.redirect('/frontend/login.html?verification=failed');
+        }
+
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            {
+                $set: { isVerified: true },
+                $unset: { verificationToken: "", verificationTokenExpires: "" }
+            }
+        );
+
+        res.redirect('/frontend/login.html?verification=success');
+    } catch (error) {
+        console.error('Email verification error:', error);
+        res.redirect('/frontend/login.html?verification=error');
+    }
 });
 
 // Request Password Reset

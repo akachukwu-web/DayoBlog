@@ -90,6 +90,34 @@
     </footer>
 
     <script type="module" src="js/auth.js"></script>
+    <script>
+        // This script handles messages from the email verification redirect
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const verificationStatus = params.get('verification');
+            const alertBox = document.getElementById('messageAlert');
+    
+            if (verificationStatus) {
+                let message = '';
+                let alertClass = '';
+                let iconClass = '';
+    
+                if (verificationStatus === 'success') {
+                    message = 'Email verified successfully! You can now log in.';
+                    alertClass = 'alert-success';
+                    iconClass = 'fa-solid fa-check-circle';
+                } else if (verificationStatus === 'failed') {
+                    message = 'Verification failed. The link may be invalid or has expired.';
+                    alertClass = 'alert-danger';
+                    iconClass = 'fa-solid fa-exclamation-triangle';
+                }
+    
+                alertBox.innerHTML = `<i class="${iconClass}"></i> ${message}`;
+                alertBox.className = `alert show ${alertClass}`;
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
 </body>
 
 </html>
