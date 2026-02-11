@@ -216,6 +216,51 @@ app.get('/api/auth/verify-email', async (req, res) => {
     }
 });
 
+// Resend Verification Email
+app.post('/api/auth/resend-verification', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await db.collection('users').findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        if (user.isVerified) {
+            return res.status(400).json({ message: 'This account is already verified.' });
+        }
+
+        // Generate new token
+        const verificationToken = crypto.randomBytes(20).toString('hex');
+        const verificationTokenExpires = Date.now() + 3600000; // 1 hour
+
+        await db.collection('users').updateOne(
+            { email },
+            { $set: { verificationToken, verificationTokenExpires } }
+        );
+
+        // Reuse the registration email logic
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const verificationUrl = `${protocol}://${host}/api/auth/verify-email?token=${verificationToken}`;
+
+        const mailOptions = {
+            to: user.email,
+            from: { name: "TechZon", address: process.env.EMAIL_USER },
+            subject: 'Verify Your TechZon Account',
+            text: `Hello ${user.name},\n\n` +
+                  `Please click the link below to verify your email address:\n\n` +
+                  `${verificationUrl}\n\n` +
+                  `This link will expire in one hour.\n`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ message: 'Verification email sent! Please check your inbox.' });
+
+    } catch (error) {
+        console.error('Resend verification error:', error);
+        res.status(500).json({ message: 'Error sending email.' });
+    }
+});
+
 // Request Password Reset
 app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
